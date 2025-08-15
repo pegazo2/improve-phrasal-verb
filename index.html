@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Phrasal Verbs Trainer - 99 PV</title>
+</head>
+<body>
+  <h2>Phrasal Verbs Trainer - 99 PV</h2>
+  <hr>
+
+  <h3>Modo Práctica</h3>
+  <label for="modeSelect">Selecciona el modo:</label>
+  <select id="modeSelect">
+    <option value="en-es">Inglés → Español</option>
+    <option value="es-en">Español → Inglés</option>
+  </select>
+
+  <div id="practiceMode">
+    <div id="practiceQuestion"></div>
+    <input type="text" id="practiceAnswer" placeholder="Escribe tu respuesta aquí">
+    <button id="checkAnswerBtn">Verificar</button>
+    <div id="feedback"></div>
+  </div>
+
+  <script>
+    const phrasalVerbsData = [
+      {pv:"look around", meaning:"Mirar alrededor"},
+      {pv:"pull over", meaning:"Detenerse a un lado"},
+      {pv:"set aside", meaning:"Apartar"},
+      {pv:"show off", meaning:"Presumir"},
+      {pv:"take up", meaning:"Empezar actividad"}
+      // ... más phrasal verbs
+    ];
+
+    let currentQuestion = {};
+    let currentMode = "en-es";
+
+    const questionEl = document.getElementById("practiceQuestion");
+    const answerEl = document.getElementById("practiceAnswer");
+    const feedbackEl = document.getElementById("feedback");
+    const modeSelect = document.getElementById("modeSelect");
+
+    function speak(text, lang = "en-US") {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utterance);
+    }
+
+    function newQuestion() {
+      currentQuestion = phrasalVerbsData[Math.floor(Math.random() * phrasalVerbsData.length)];
+      if (currentMode === "en-es") {
+        questionEl.textContent = `Traduce al español: ${currentQuestion.pv}`;
+      } else {
+        questionEl.textContent = `Traduce al inglés: ${currentQuestion.meaning}`;
+      }
+      answerEl.value = "";
+      feedbackEl.textContent = "";
+      answerEl.focus();
+    }
+
+    function checkAnswer() {
+      let correct;
+      let textToSpeak;
+      if (currentMode === "en-es") {
+        correct = currentQuestion.meaning.toLowerCase();
+        textToSpeak = currentQuestion.pv; // siempre pronuncia el phrasal verb en inglés
+      } else {
+        correct = currentQuestion.pv.toLowerCase();
+        textToSpeak = currentQuestion.pv; // pronuncia en inglés
+      }
+
+      if (answerEl.value.trim().toLowerCase() === correct) {
+        feedbackEl.textContent = "✅ Correcto";
+        feedbackEl.style.color = "green";
+        speak(textToSpeak, "en-US");
+
+        // Pasar automáticamente a la siguiente pregunta después de 1.2 segundos
+        setTimeout(() => {
+          newQuestion();
+        }, 1200);
+
+      } else {
+        feedbackEl.textContent = `❌ Incorrecto. Respuesta correcta: ${correct}`;
+        feedbackEl.style.color = "red";
+        speak(textToSpeak, "en-US"); // pronuncia la respuesta correcta en inglés aunque falles
+      }
+    }
+
+    document.getElementById("checkAnswerBtn").addEventListener("click", checkAnswer);
+
+    modeSelect.addEventListener("change", () => {
+      currentMode = modeSelect.value;
+      newQuestion();
+    });
+
+    // Detectar Enter para verificar
+    answerEl.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        checkAnswer();
+      }
+    });
+
+    newQuestion();
+  </script>
+</body>
+</html>
